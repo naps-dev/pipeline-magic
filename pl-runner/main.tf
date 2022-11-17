@@ -87,6 +87,10 @@ resource "aws_instance" "pl_runner" {
 
   key_name = aws_key_pair.generated_key.id
 
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+
+  user_data = file("instance_prep.sh")
+
   network_interface {
     device_index         = 0
     network_interface_id = aws_network_interface.pl_runner.id
@@ -102,3 +106,78 @@ resource "aws_instance" "pl_runner" {
     Name = "pl-runner"
   }
 }
+
+resource "aws_iam_policy" "ecr_policy" {
+  name        = "naps-dev-ecr"
+  path        = "/"
+  description = "Permissions to perform actions on ECR"
+
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [{
+        Sid    = "ECRAccess"
+        Effect = "Allow"
+
+        Action = [
+          "ecr:PutLifecyclePolicy",
+          "ecr:PutImageTagMutability",
+          "ecr:StartImageScan",
+          "ecr:PutImageScanningConfiguration",
+          "ecr:UploadLayerPart",
+          "ecr:BatchDeleteImage",
+          "ecr:DeleteLifecyclePolicy",
+          "ecr:DeleteRepository",
+          "ecr:PutImage",
+          "ecr:CompleteLayerUpload",
+          "ecr:StartLifecyclePolicyPreview",
+          "ecr:InitiateLayerUpload",
+          "ecr:DeleteRepositoryPolicy"
+        ]
+        Resource = "arn:aws:ecr:us-east-1:765814079306:repository/*"
+        Condition = {
+          "ArnEquals" : {
+            "aws:PrincipalArn" : "arn:aws:ec2:us-east-1:765814079306:instance/i-0642feb5a28bc9c7a"
+          }
+        }
+        }, {
+        Sid    = "ECRToken"
+        Effect = "Allow"
+
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      }]
+  })
+}
+
+resource "aws_iam_role" "ec2_role" {
+  name = "naps-dev-ecr"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = "ECRRole"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "ec2_policy_role" {
+  name       = "naps-dev-ecr"
+  roles      = [aws_iam_role.ec2_role.name]
+  policy_arn = aws_iam_policy.ecr_policy.arn
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "naps-dev-ecr"
+  role = aws_iam_policy_attachment.ec2_policy_role.name
+}
+
