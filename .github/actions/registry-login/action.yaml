@@ -1,0 +1,16 @@
+name: Create Zarf Package
+
+inputs:
+  registry_username:
+    required: true
+  registry_password:
+    required: true
+  registry_url:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        zarf tools registry login -u "${{ inputs.registry_username }}" -p "${{ inputs.registry_password }}" "${{ inputs.registry_url }}"
+      shell: bash

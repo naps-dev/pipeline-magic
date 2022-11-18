@@ -1,0 +1,17 @@
+name: Convert VM OVA to QCOW2
+
+inputs:
+  input_ova_file:
+    required: true
+  output_qcow2_file:
+    required: true
+  
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        LIBGUESTFS_BACKEND=direct \
+          virt-v2v \
+          -i ova "${{inputs.input_ova_file}}" \
+          -o local -of qcow2 -os "$PWD" -on "${{inputs.output_qcow2_file}}"
+      shell: bash

@@ -135,11 +135,6 @@ resource "aws_iam_policy" "ecr_policy" {
           "ecr:DeleteRepositoryPolicy"
         ]
         Resource = "arn:aws:ecr:us-east-1:765814079306:repository/*"
-        Condition = {
-          "ArnEquals" : {
-            "aws:PrincipalArn" : "arn:aws:ec2:us-east-1:765814079306:instance/i-0642feb5a28bc9c7a"
-          }
-        }
         }, {
         Sid    = "ECRToken"
         Effect = "Allow"

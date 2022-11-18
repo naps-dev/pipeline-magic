@@ -1,0 +1,17 @@
+name: Customize a VM
+
+inputs:
+  qcow2_file:
+    required: true
+  customizations:
+    required: true
+  
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        LIBGUESTFS_BACKEND=direct \
+          virt-customize \
+          -a "${{inputs.qcow2_file}}" \
+          "${{inputs.customizations}}"
+      shell: bash
