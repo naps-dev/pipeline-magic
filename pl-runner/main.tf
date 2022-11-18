@@ -148,6 +148,24 @@ resource "aws_iam_policy" "ecr_policy" {
           "ecr:GetAuthorizationToken"
         ]
         Resource = "*"
+        }, {
+        Sid    = "S3Bucket"
+        Effect = "Allow"
+
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = "arn:aws:s3:::naps-dev-artifacts"
+        }, {
+        Sid    = "S3Objects"
+        Effect = "Allow"
+
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "arn:aws:s3:::naps-dev-artifacts/*"
       }]
   })
 }
