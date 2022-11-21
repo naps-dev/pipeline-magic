@@ -125,6 +125,7 @@ resource "aws_iam_policy" "ecr_policy" {
           "ecr:StartImageScan",
           "ecr:PutImageScanningConfiguration",
           "ecr:UploadLayerPart",
+          "ecr:BatchCheckLayerAvailability",
           "ecr:BatchDeleteImage",
           "ecr:DeleteLifecyclePolicy",
           "ecr:DeleteRepository",

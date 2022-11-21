@@ -89,6 +89,12 @@ This project contains reusable GitHub actions intended to be employed by project
 
 Retreve objects from S3.
 
+```yaml
+      - uses: naps-dev/s3-fetch
+        with: 
+          s3_url: s3://naps-dev-artifacts/Capability-SW/MixMode/MixMode-8.11-export-i-0966be276efb5b2f2.ova
+```
+
 </details>
 
 <details>
