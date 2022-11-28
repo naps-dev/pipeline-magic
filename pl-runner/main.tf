@@ -1,5 +1,5 @@
 terraform {
-  required_version = "= 1.3.4"
+  required_version = "~>1.3.4"
 
   backend "s3" {
     bucket         = "pipeline-magic-state"
@@ -133,7 +133,10 @@ resource "aws_iam_policy" "ecr_policy" {
           "ecr:CompleteLayerUpload",
           "ecr:StartLifecyclePolicyPreview",
           "ecr:InitiateLayerUpload",
-          "ecr:DeleteRepositoryPolicy"
+          "ecr:DeleteRepositoryPolicy",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer"
         ]
         Resource = "arn:aws:ecr:us-east-1:765814079306:repository/*"
         }, {
@@ -178,6 +181,22 @@ resource "aws_iam_role" "ec2_role" {
         Sid    = "ECRRole"
         Principal = {
           Service = "ec2.amazonaws.com"
+        }
+      },
+      {
+        Effect: "Allow",
+        Principal: {
+            Federated: "arn:aws:iam::765814079306:oidc-provider/token.actions.githubusercontent.com"
+        },
+        Action: "sts:AssumeRoleWithWebIdentity",
+        Condition: {
+            StringLike: {
+                "token.actions.githubusercontent.com:sub": "repo:naps-dev/*"
+            },
+            "ForAllValues:StringEquals": {
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                "token.actions.githubusercontent.com:iss": "https://token.actions.githubusercontent.com"
+            }
         }
       }
     ]
