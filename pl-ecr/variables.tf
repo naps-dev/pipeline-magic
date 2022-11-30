@@ -20,5 +20,5 @@ variable "aws_region" {
 
 variable "image_names" {
   type    = list(string)
-  default = ["mixmode", "sitestore"]
+  default = ["mixmode", "sitestore", "mixmode-sensor"]
 }
