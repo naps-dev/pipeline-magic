@@ -7,6 +7,8 @@ region = us-east-1
 EOF
 
 sudo yum -y update
+suod yum -y install git
+
 sudo yum -y install docker
 sudo usermod -a -G docker ec2-user
 newgrp docker
