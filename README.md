@@ -74,6 +74,15 @@ vi main.tf
 terraform init
 terraform apply
 
+# One time runner configuration
+ssh -i runner.pem "fedora@$(terraform output -raw runner_ip)"
+cd actions-runner
+./config.sh --url https://github.com/naps-dev --token [READACTED]
+sudo ./svc.sh install
+# SELinux issues: https://github.com/actions/runner/issues/410
+# Note, this won't survive relabeling
+sudo chcon system_u:object_r:usr_t:s0 runsvc.sh
+sudo systemctl start actions.runner.naps-dev.naps-dev-runner.service
 ```
 
 Follow additional configuration steps [here](https://github.com/organizations/naps-dev/settings/actions/runners/new) and [here](https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service) to join the runner to GitHub and configure it to run as a service.

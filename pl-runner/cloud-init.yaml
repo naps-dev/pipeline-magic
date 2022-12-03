@@ -1,0 +1,56 @@
+#cloud-config
+
+yum_repos:
+  docker-ce-stable:
+    name: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable
+    enabled: true
+    gpgcheck: true
+    gpgkey: https://download.docker.com/linux/fedora/gpg
+
+package_update: true
+
+package_upgrade: true
+
+packages:
+  - git
+  - libguestfs
+  - libguestfs-tools
+  - virt-v2v
+  - awscli
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
+
+users:
+  # Default "fedora" user
+  - default
+
+groups:
+  - docker
+
+runcmd:
+  # It looks like errors aren't fatal by default in cloud-init, maybe this will help:
+  - set -xeuo pipefail
+  - systemctl start docker
+  - systemctl enable docker.service
+  - systemctl enable containerd.service
+  - mkdir -p /home/fedora/actions-runner
+  - cd /home/fedora/actions-runner
+  - curl -o actions-runner-linux-x64-2.299.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.299.1/actions-runner-linux-x64-2.299.1.tar.gz
+  - echo "147c14700c6cb997421b9a239c012197f11ea9854cd901ee88ead6fe73a72c74  actions-runner-linux-x64-2.299.1.tar.gz" | sha256sum -c
+  - tar xzf ./actions-runner-linux-x64-2.299.1.tar.gz
+  - chown -R fedora:fedora .
+  # Can't do this in groups: because the user doesn't exist yet
+  - usermod -aG docker fedora
+
+write_files:
+  - path: /home/fedora/.aws/config
+    # Can't do this due to bug because the user doesn't exist yet: https://bugs.launchpad.net/cloud-init/+bug/1231541
+    # owner: fedora:fedora
+    # Instead install with wide open permissions:
+    permissions: "0666"
+    content: |
+      [default]
+      region = us-east-1

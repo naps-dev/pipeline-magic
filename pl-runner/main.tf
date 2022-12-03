@@ -89,7 +89,7 @@ resource "aws_instance" "pl_runner" {
 
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
 
-  user_data = file("instance_prep.sh")
+  user_data = file("cloud-init.yaml")
 
   network_interface {
     device_index         = 0
