@@ -7,11 +7,13 @@ variable "aws_region" {
 # }
 
 variable "instance_type" {
-  default = "m5.4xlarge"
+  default = "m5.large"
 }
 
 variable "runner_amis" {
   default = {
-    us-east-1 = "ami-09d3b3274b6c5d4aa"
+    # Fedora-Cloud-Base-37-1.7.x86_64-hvm-us-east-1-gp2-0
+    # Official AMI per https://alt.fedoraproject.org/cloud/
+    us-east-1 = "ami-023fb534213ca41da"
   }
 }
